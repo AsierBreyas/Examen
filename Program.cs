@@ -148,7 +148,8 @@ class Program
                 foreach (Modulo modulo in modulosM5)
                 {
                     var selecMatriculas = db.Matriculas.SingleOrDefault(x => x.AlumnoId == alumno.AlumnoId && x.ModuloId == modulo.ModuloId);
-                    if (selecMatriculas != null){
+                    if (selecMatriculas != null)
+                    {
                         db.Matriculas.Remove(selecMatriculas);
                     }
                 }
@@ -164,10 +165,82 @@ class Program
             // Las queries que se piden en el examen
             //Filtering
             var filter = db.Alumnos.Where(o => o.AlumnoId == 1);
-            Console.WriteLine(filter);
             var filter2 = db.Modulos.Where(o => o.ModuloId == 1);
-            Console.WriteLine(filter2);
-            var filter3 = db.Matriculas.Where(o => o.MatriculaId == 1);
+            var filter3 = db.Matriculas.Where(o => o.MatriculaId == 682);
+            //Anonymus
+            var anon1 = db.Alumnos.Select(o => new
+            {
+                AlumnoId = o.AlumnoId,
+                Nombre = o.Nombre
+            });
+            var anon2 = db.Modulos.Select(o => new
+            {
+                ModuloId = o.ModuloId,
+                Titulo = o.Titulo
+            });
+            var anon3 = db.Matriculas.Select(o => new
+            {
+                MatriculaId = o.MatriculaId,
+                AlumnoId = o.AlumnoId,
+                ModuloId = o.ModuloId
+            });
+            //Ordering
+            var order1 = db.Alumnos.OrderBy(o => o.Nombre);
+            var order2 = db.Modulos.OrderBy(o => o.Titulo);
+            var order3 = db.Matriculas.OrderBy(o => o.MatriculaId);
+            //Joining
+            var join = from c in db.Alumnos
+                       join o in db.Matriculas on
+                       c.AlumnoId equals o.AlumnoId
+                       select new
+                       {
+                           c.AlumnoId,
+                           c.Nombre,
+                           c.Edad,
+                           o.ModuloId
+                       };
+            //Grouping
+            var grouping = from o in db.Matriculas
+                           group o by o.AlumnoId into g
+                           select new
+                           {
+                               AlumnoId = g.Key,
+                               ModulosToales = g.Count()
+                           };
+            //Paging
+            var paging1 = (from o in db.Alumnos
+                           where o.AlumnoId == 1
+                           select o).Take(3);
+            var paging2 = (from o in db.Modulos
+                           where o.ModuloId == 1
+                           orderby o.Titulo
+                           select o).Skip(2).Take(2);
+            var paging3 = (from o in db.Matriculas
+                           where o.AlumnoId == 683
+                           select o).Take(3);
+            //Element Operatos
+            var single = (from c in db.Alumnos
+                          where c.AlumnoId == 1
+                          select c).Single();
+            var sDefault = (from c in db.Modulos
+                            where c.ModuloId == 1
+                            select c).SingleOrDefault();
+            var emDefault = (from c in db.Alumnos
+                             where c.AlumnoId == 10
+                             select c).DefaultIfEmpty(
+             new Alumno()).Single();
+            var firts = (from o in db.Matriculas
+                         where o.MatriculaId == 683
+                         orderby o.MatriculaId
+                         select o).First();
+            var last = (from o in db.Matriculas
+                         where o.MatriculaId == 683
+                         orderby o.MatriculaId
+                         select o).Last();
+            var elementAt = (from o in db.Modulos
+                         where o.ModuloId == 1
+                         orderby o.ModuloId
+                         select o).ElementAt(4);
 
         }
     }
